@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String  @id   @default(uuid()) 
+  username String  @unique
+  name  String
+  email String @unique
+  password String
+  posts Posts[] 
+  comments Comments[]
+}
+
+model Posts {
+  id    String  @id   @default(uuid()) 
+  title     String
+  content   String?
+  status  Status @default(TODO)
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  String?
+  createEmail String
+  createDate DateTime
+  comments   Comments[]
+  logs       Posts_Log[]
+}
+
+model Comments{
+  id String @id @default(uuid())
+  content String
+  createName String
+  createDate DateTime
+  isDelete   Boolean  @default(false) 
+  post       Posts?   @relation(fields: [postId], references: [id])
+  postId     String?  
+  author     User?    @relation(fields: [authorId], references: [id])
+  authorId   String?  
+}
+
+model Posts_Log{
+  id String @id @default(uuid())
+  title     String
+  content   String?
+  status Status
+  createdAt DateTime @default(now())
+  post      Posts    @relation(fields: [postId], references: [id])
+  postId    String  
+}
+
+
+
+enum Status{
+  TODO
+  IN_PROGRESS
+  DONE
+}
